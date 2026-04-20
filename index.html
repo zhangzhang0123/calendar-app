@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日历记事 - Calendar Tasks</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">📅 日历记事</h1>
+                <p class="tagline">高效管理你的每一天</p>
+            </div>
+
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalTasks">0</span>
+                    <span class="stat-label">总任务</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="completedTasks">0</span>
+                    <span class="stat-label">已完成</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="pendingTasks">0</span>
+                    <span class="stat-label">进行中</span>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>筛选视图</h3>
+                <button class="filter-btn active" data-filter="all">全部任务</button>
+                <button class="filter-btn" data-filter="pending">进行中</button>
+                <button class="filter-btn" data-filter="completed">已完成</button>
+                <button class="filter-btn" data-filter="overdue">已逾期</button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部工具栏 -->
+            <header class="toolbar">
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="calendar">📅 日历视图</button>
+                    <button class="view-btn" data-view="list">📋 列表视图</button>
+                    <button class="view-btn" data-view="checkin">✅ 每日打卡</button>
+                </div>
+                <button class="add-task-btn" id="addTaskBtn">
+                    <span class="icon">+</span>
+                    添加新任务
+                </button>
+            </header>
+
+            <!-- 日历视图 -->
+            <section class="calendar-view" id="calendarView">
+                <div class="calendar-header">
+                    <button class="nav-btn" id="prevMonth">‹</button>
+                    <h2 class="current-month" id="currentMonth">2024年1月</h2>
+                    <button class="nav-btn" id="nextMonth">›</button>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <span>周日</span>
+                        <span>周一</span>
+                        <span>周二</span>
+                        <span>周三</span>
+                        <span>周四</span>
+                        <span>周五</span>
+                        <span>周六</span>
+                    </div>
+                    <div class="calendar-days" id="calendarDays">
+                        <!-- 日历日期将通过JS动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 列表视图 -->
+            <section class="list-view" id="listView" style="display: none;">
+                <div class="task-list" id="taskList">
+                    <!-- 任务列表将通过JS动态生成 -->
+                </div>
+            </section>
+
+            <!-- 打卡视图 -->
+            <section class="checkin-view" id="checkinView" style="display: none;">
+                <div class="checkin-page-header">
+                    <h2>每日打卡</h2>
+                    <p class="checkin-page-subtitle">坚持每一天，成就更好的自己</p>
+                </div>
+                <div class="checkin-stats-bar">
+                    <div class="checkin-stat-item">
+                        <span class="checkin-stat-number" id="totalCheckins">0</span>
+                        <span class="checkin-stat-label">打卡任务</span>
+                    </div>
+                    <div class="checkin-stat-item">
+                        <span class="checkin-stat-number" id="todayChecked">0</span>
+                        <span class="checkin-stat-label">今日已打卡</span>
+                    </div>
+                    <div class="checkin-stat-item">
+                        <span class="checkin-stat-number" id="maxStreak">0</span>
+                        <span class="checkin-stat-label">最长连续</span>
+                    </div>
+                </div>
+                <div class="checkin-page-list" id="checkinPageList">
+                    <!-- 打卡任务列表将通过JS动态生成 -->
+                </div>
+                <button class="add-checkin-page-btn" id="addCheckinPageBtn">
+                    <span class="icon">+</span>
+                    添加打卡任务
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <!-- 添加/编辑任务模态框 -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加新任务</h2>
+                <button class="close-btn" id="closeModal">×</button>
+            </div>
+            <form class="task-form" id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">任务标题 *</label>
+                    <input type="text" id="taskTitle" required placeholder="输入任务标题">
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">任务描述</label>
+                    <textarea id="taskDescription" rows="3" placeholder="输入任务详细描述"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskStartDate">开始日期 *</label>
+                        <input type="date" id="taskStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStartTime">开始时间</label>
+                        <input type="time" id="taskStartTime">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskEndDate">结束日期 *</label>
+                        <input type="date" id="taskEndDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEndTime">结束时间</label>
+                        <input type="time" id="taskEndTime">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskProgress">初始进展 (%)</label>
+                    <div class="progress-input-group">
+                        <input type="range" id="taskProgressSlider" min="0" max="100" value="0">
+                        <span id="taskProgressValue">0%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskPriority">优先级</label>
+                    <select id="taskPriority">
+                        <option value="low">低优先级</option>
+                        <option value="medium" selected>中优先级</option>
+                        <option value="high">高优先级</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskCategory">分类</label>
+                    <select id="taskCategory">
+                        <option value="work">工作</option>
+                        <option value="personal">个人</option>
+                        <option value="study">学习</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">取消</button>
+                    <button type="submit" class="btn-primary">保存任务</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 任务详情模态框 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal detail-modal">
+            <div class="modal-header">
+                <h2>任务详情</h2>
+                <button class="close-btn" id="closeDetailModal">×</button>
+            </div>
+            <div class="task-detail" id="taskDetail">
+                <!-- 任务详情将通过JS动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加打卡任务模态框 -->
+    <div class="modal-overlay" id="checkinModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>添加打卡任务</h2>
+                <button class="close-btn" id="closeCheckinModal">×</button>
+            </div>
+            <form class="task-form" id="checkinForm">
+                <div class="form-group">
+                    <label for="checkinTitle">打卡任务名称 *</label>
+                    <input type="text" id="checkinTitle" required placeholder="例如：早起、运动、阅读">
+                </div>
+                <div class="form-group">
+                    <label for="checkinIcon">图标（emoji）</label>
+                    <input type="text" id="checkinIcon" placeholder="例如：🏃、📚、💪" maxlength="2">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelCheckinBtn">取消</button>
+                    <button type="submit" class="btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
