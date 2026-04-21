@@ -471,8 +471,8 @@ class CalendarTaskApp {
                 const taskList = document.createElement('div');
                 taskList.className = 'day-task-list';
 
-                // 显示最多3个任务
-                const maxTasks = 3;
+                // 显示最多6个任务
+                const maxTasks = 6;
                 tasksOnDay.slice(0, maxTasks).forEach(task => {
                     const taskItem = document.createElement('div');
                     taskItem.className = `day-task-item priority-${task.priority}`;
@@ -986,7 +986,10 @@ class CalendarTaskApp {
         const title = document.getElementById('checkinTitle').value.trim();
         const icon = document.getElementById('checkinIcon').value.trim() || '✓';
 
-        if (!title) return;
+        if (!title) {
+            alert('请输入打卡任务名称');
+            return;
+        }
 
         const checkin = {
             id: this.generateId(),
@@ -999,7 +1002,7 @@ class CalendarTaskApp {
         this.checkins.push(checkin);
         this.saveCheckins();
         this.closeCheckinModal();
-        this.renderCheckinList();
+        this.renderCheckinPage();
     }
 
     // 删除打卡任务
@@ -1007,7 +1010,7 @@ class CalendarTaskApp {
         if (confirm('确定要删除这个打卡任务吗？')) {
             this.checkins = this.checkins.filter(c => c.id !== checkinId);
             this.saveCheckins();
-            this.renderCheckinList();
+            this.renderCheckinPage();
         }
     }
 
