@@ -22,7 +22,7 @@
     --border-color: #D2D2D7;
 
     /* 优先级颜色 */
-    --priority-low: #34C759;
+    --priority-low: #007AFF;
     --priority-medium: #FF9500;
     --priority-high: #FF3B30;
 
@@ -177,6 +177,58 @@ body {
 .filter-btn.active {
     background: var(--primary-color);
     color: white;
+}
+
+/* 侧边栏底部 */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.sidebar-action-btn,
+.sidebar-notification-btn {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-action-btn:last-child,
+.sidebar-notification-btn:last-child {
+    margin-bottom: 0;
+}
+
+.sidebar-action-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sidebar-notification-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.sidebar-action-btn .icon,
+.sidebar-notification-btn .icon {
+    font-size: 18px;
+}
+
+.sidebar-action-btn .text,
+.sidebar-notification-btn .text {
+    flex: 1;
 }
 
 /* ========================================
@@ -573,6 +625,193 @@ body {
     font-weight: 300;
 }
 
+/* 通知设置表单样式 */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.form-hint {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: var(--spacing-xs);
+    margin-bottom: 0;
+}
+
+/* 导出格式选择样式 */
+.export-format-content {
+    padding: var(--spacing-md);
+}
+
+.format-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.format-option-btn {
+    width: 100%;
+    padding: var(--spacing-lg);
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    text-align: center;
+}
+
+.format-option-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.format-icon {
+    font-size: 48px;
+    line-height: 1;
+}
+
+.format-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.format-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* 日期任务列表样式 */
+.date-task-content {
+    padding: var(--spacing-md);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.date-task-item {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    border-left: 4px solid var(--priority-medium);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.date-task-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateX(4px);
+}
+
+.date-task-item.priority-high {
+    border-left-color: var(--priority-high);
+}
+
+.date-task-item.priority-low {
+    border-left-color: var(--priority-low);
+}
+
+.date-task-item.completed {
+    opacity: 0.6;
+}
+
+.date-task-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date-task-title-line {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.date-task-title-line .task-title-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date-task-progress-note-line {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    overflow: hidden;
+}
+
+.date-task-progress-note-line .note-icon {
+    flex-shrink: 0;
+}
+
+.date-task-progress-note-line .note-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.date-task-info-line {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+.task-progress-percent {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+    min-width: 40px;
+    text-align: right;
+}
+
+.date-task-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+.date-task-footer {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+}
+
+/* 任务详情中的进展描述样式 */
+.progress-note {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--primary-color);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
 /* ========================================
    主内容区样式
    ======================================== */
@@ -734,12 +973,13 @@ body {
 }
 
 .calendar-day.today {
-    background: var(--primary-color);
-    color: white;
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.08) 0%, rgba(0, 122, 255, 0.15) 100%);
+    border: 2px solid var(--primary-color);
 }
 
 .calendar-day.today .day-number {
-    color: white;
+    color: var(--primary-color);
+    font-weight: 700;
 }
 
 .day-number {
@@ -774,8 +1014,9 @@ body {
 
 .day-task-item .task-content {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
 }
 
 .day-task-item .task-title-text {
@@ -785,6 +1026,14 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.2;
+    flex: 1;
+}
+
+.day-task-item .progress-text {
+    font-size: 8px;
+    font-weight: 600;
+    color: var(--primary-color);
+    flex-shrink: 0;
 }
 
 .day-task-item.priority-high {
@@ -806,7 +1055,7 @@ body {
 }
 
 .day-task-item.priority-low {
-    background: rgba(52, 199, 89, 0.12);
+    background: rgba(0, 122, 255, 0.12);
     border-left: 3px solid var(--priority-low);
 }
 
@@ -816,10 +1065,17 @@ body {
 
 .day-task-item.completed {
     opacity: 0.6;
+    background: rgba(52, 199, 89, 0.15) !important;
+    border-left-color: var(--success-color) !important;
 }
 
 .day-task-item.completed .task-title-text {
     text-decoration: line-through;
+    color: var(--success-color) !important;
+}
+
+.day-task-item.completed .progress-text {
+    color: var(--success-color) !important;
 }
 
 /* 迷你进度条 */
@@ -873,31 +1129,41 @@ body {
     background: rgba(142, 142, 147, 0.2);
 }
 
-/* 今天日期的任务样式 */
-.calendar-day.today .day-task-item {
-    background: rgba(255, 255, 255, 0.15);
-    border-left-color: rgba(255, 255, 255, 0.8);
+/* 今天日期的任务样式 - 保持原有优先级颜色 */
+.calendar-day.today .day-task-item.priority-high {
+    background: rgba(255, 59, 48, 0.15);
+    border-left-color: var(--priority-high);
 }
 
-.calendar-day.today .task-title-text {
-    color: white;
+.calendar-day.today .day-task-item.priority-high .task-title-text {
+    color: var(--priority-high);
 }
 
-.calendar-day.today .mini-progress-bar {
-    background: rgba(255, 255, 255, 0.3);
+.calendar-day.today .day-task-item.priority-medium {
+    background: rgba(255, 149, 0, 0.15);
+    border-left-color: var(--priority-medium);
 }
 
-.calendar-day.today .mini-progress-fill {
-    background: white;
+.calendar-day.today .day-task-item.priority-medium .task-title-text {
+    color: var(--priority-medium);
+}
+
+.calendar-day.today .day-task-item.priority-low {
+    background: rgba(0, 122, 255, 0.15);
+    border-left-color: var(--priority-low);
+}
+
+.calendar-day.today .day-task-item.priority-low .task-title-text {
+    color: var(--priority-low);
 }
 
 .calendar-day.today .progress-text {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--primary-color);
 }
 
 .calendar-day.today .day-task-more {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--text-secondary);
 }
 
 .task-indicators {
@@ -1020,9 +1286,109 @@ body {
 
 .task-meta {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--spacing-md);
     font-size: 13px;
     color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.task-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.task-priority {
+    font-weight: 500;
+}
+
+.task-priority.priority-high {
+    color: var(--priority-high);
+}
+
+.task-priority.priority-medium {
+    color: var(--priority-medium);
+}
+
+.task-priority.priority-low {
+    color: var(--priority-low);
+}
+
+.task-category {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.task-category.work {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--category-work);
+}
+
+.task-category.personal {
+    background: rgba(52, 199, 89, 0.1);
+    color: var(--category-personal);
+}
+
+.task-category.study {
+    background: rgba(88, 86, 214, 0.1);
+    color: var(--category-study);
+}
+
+.task-category.other {
+    background: rgba(142, 142, 147, 0.1);
+    color: var(--category-other);
+}
+
+.task-progress-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.task-progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.task-progress-bar .progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    transition: width var(--transition-normal);
+}
+
+.task-progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-color);
+    min-width: 45px;
+    text-align: right;
+}
+
+.task-progress-note {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(0, 122, 255, 0.05);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-color);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.task-progress-note .note-label {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.task-progress-note .note-content {
+    color: var(--text-secondary);
+}
 }
 
 .task-date {

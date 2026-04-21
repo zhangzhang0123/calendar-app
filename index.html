@@ -37,6 +37,21 @@
                 <button class="filter-btn" data-filter="completed">已完成</button>
                 <button class="filter-btn" data-filter="overdue">已逾期</button>
             </div>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-action-btn" id="exportDataBtn">
+                    <span class="icon">📤</span>
+                    <span class="text">导出数据</span>
+                </button>
+                <button class="sidebar-action-btn" id="importDataBtn">
+                    <span class="icon">📥</span>
+                    <span class="text">导入数据</span>
+                </button>
+                <button class="sidebar-notification-btn" id="notificationSettingsBtn">
+                    <span class="icon">🔔</span>
+                    <span class="text">通知设置</span>
+                </button>
+            </div>
         </aside>
 
         <!-- 主内容区 -->
@@ -156,11 +171,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="taskProgress">初始进展 (%)</label>
-                    <div class="progress-input-group">
-                        <input type="range" id="taskProgressSlider" min="0" max="100" value="0">
-                        <span id="taskProgressValue">0%</span>
-                    </div>
+                    <label for="taskProgressNote">进展描述</label>
+                    <textarea id="taskProgressNote" rows="2" placeholder="描述当前进展情况，如：已完成需求分析，正在进行设计..."></textarea>
+                    <p class="form-hint">记录任务的当前进展状态和下一步计划</p>
                 </div>
 
                 <div class="form-group">
@@ -224,6 +237,105 @@
                     <button type="submit" class="btn-primary">添加</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 通知设置模态框 -->
+    <div class="modal-overlay" id="notificationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>通知设置</h2>
+                <button class="close-btn" id="closeNotificationModal">×</button>
+            </div>
+            <form class="task-form" id="notificationForm">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notificationEnabled" checked>
+                        <span>启用打卡提醒</span>
+                    </label>
+                    <p class="form-hint">开启后，将在指定时间检查未完成的打卡任务并发送通知</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="checkTime">提醒时间</label>
+                    <input type="time" id="checkTime" value="12:00">
+                    <p class="form-hint">默认中午12:00，如果打卡任务未完成则发送通知</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="browserNotification" checked>
+                        <span>浏览器通知</span>
+                    </label>
+                    <p class="form-hint">使用浏览器内置通知功能（需要授权）</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="espaceNotification">
+                        <span>eSpace通知</span>
+                    </label>
+                    <p class="form-hint">通过eSpace发送通知（需要配置Webhook）</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="espaceWebhook">eSpace Webhook地址</label>
+                    <input type="url" id="espaceWebhook" placeholder="https://espace.example.com/webhook/...">
+                    <p class="form-hint">eSpace机器人的Webhook地址</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="testNotificationBtn">测试通知</button>
+                    <button type="button" class="btn-secondary" id="cancelNotificationBtn">取消</button>
+                    <button type="submit" class="btn-primary">保存设置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="importFileInput" accept=".json,.xlsx,.xls" style="display: none;">
+
+    <!-- 日期任务列表模态框 -->
+    <div class="modal-overlay" id="dateTaskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="dateTaskModalTitle">当天任务</h2>
+                <button class="close-btn" id="closeDateTaskModal">×</button>
+            </div>
+            <div class="date-task-content" id="dateTaskContent">
+                <!-- 任务列表将通过JS动态生成 -->
+            </div>
+            <div class="date-task-footer">
+                <button class="btn-primary" id="addTaskForDateBtn">
+                    <span>+ 添加任务</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出格式选择模态框 -->
+    <div class="modal-overlay" id="exportFormatModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>选择导出格式</h2>
+                <button class="close-btn" id="closeExportFormatModal">×</button>
+            </div>
+            <div class="export-format-content">
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">请选择导出数据的格式：</p>
+                <div class="format-options">
+                    <button class="format-option-btn" id="exportJsonBtn">
+                        <span class="format-icon">📄</span>
+                        <span class="format-name">JSON格式</span>
+                        <span class="format-desc">适合数据备份和程序处理</span>
+                    </button>
+                    <button class="format-option-btn" id="exportExcelBtn">
+                        <span class="format-icon">📊</span>
+                        <span class="format-name">Excel格式</span>
+                        <span class="format-desc">适合查看和编辑，支持.xlsx格式</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
