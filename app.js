@@ -365,6 +365,32 @@ class CalendarTaskApp {
         }
     }
 
+    // 更新任务进度和进展描述（新方法）
+    updateTaskProgressWithNote(taskId, progress, note) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.progress = parseInt(progress);
+            task.progressNote = note;
+            
+            if (task.progress === 100) {
+                task.status = 'completed';
+            } else if (task.progress > 0) {
+                task.status = 'in-progress';
+            } else {
+                task.status = 'pending';
+            }
+
+            task.updatedAt = new Date().toISOString();
+            this.saveTasks();
+            this.renderCalendar();
+            this.renderTaskList();
+            this.updateStats();
+
+            // 刷新详情显示
+            this.showTaskDetail(taskId);
+        }
+    }
+
     // 切换视图
     switchView(view) {
         this.currentView = view;
@@ -783,12 +809,7 @@ class CalendarTaskApp {
                     <span class="status-badge ${isOverdue ? 'overdue' : task.status}">
                         ${isOverdue ? '已逾期' : statusNames[task.status]}
                     </span>
-                </div>
-                <div class="task-progress-info">
-                    <div class="task-progress-bar">
-                        <div class="progress-fill" style="width: ${task.progress}%"></div>
-                    </div>
-                    <span class="task-progress-text">${task.progress}%</span>
+                    <span class="task-progress-badge">${task.progress}%</span>
                 </div>
                 ${task.progressNote ? `
                     <div class="task-progress-note">
@@ -873,40 +894,28 @@ class CalendarTaskApp {
             </div>
 
             <div class="detail-section">
-                <h3>进度</h3>
+                <h3>进度与进展</h3>
                 <div class="detail-content">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${task.progress}%"></div>
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <span style="font-size: 14px; color: var(--text-secondary);">当前进度：</span>
+                        <span id="currentProgressValue" style="font-size: 20px; font-weight: 600; color: var(--primary-color);">${task.progress}%</span>
                     </div>
-                    <p style="margin-top: 8px;">${task.progress}%</p>
-                </div>
-            </div>
-
-            ${task.progressNote ? `
-                <div class="detail-section">
-                    <h3>进展描述</h3>
-                    <div class="detail-content progress-note">${task.progressNote}</div>
-                </div>
-            ` : ''}
-
-            <div class="detail-section">
-                <h3>更新进度</h3>
-                <div class="detail-content">
                     <input type="range" min="0" max="100" value="${task.progress}"
                            class="progress-slider" id="progressSlider"
-                           style="width: 100%; margin-bottom: 8px;">
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 13px; color: var(--text-secondary);">进展描述：</label>
-                        <textarea id="progressNoteInput" rows="2"
-                                  style="width: 100%; margin-top: 4px; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; resize: vertical;"
+                           style="width: 100%; margin-bottom: 16px;">
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 14px; color: var(--text-secondary); display: block; margin-bottom: 8px;">进展描述：</label>
+                        <textarea id="progressNoteInput" rows="3"
+                                  style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; resize: vertical; font-family: inherit;"
                                   placeholder="描述当前进展情况...">${task.progressNote || ''}</textarea>
                     </div>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn-secondary" onclick="app.updateTaskProgress('${task.id}', 0)">重置</button>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                        <span style="font-size: 13px; color: var(--text-tertiary);">快捷设置：</span>
+                        <button class="btn-secondary" onclick="app.updateTaskProgress('${task.id}', 0)">0%</button>
                         <button class="btn-secondary" onclick="app.updateTaskProgress('${task.id}', 25)">25%</button>
                         <button class="btn-secondary" onclick="app.updateTaskProgress('${task.id}', 50)">50%</button>
                         <button class="btn-secondary" onclick="app.updateTaskProgress('${task.id}', 75)">75%</button>
-                        <button class="btn-primary" onclick="app.updateTaskProgress('${task.id}', 100)">完成</button>
+                        <button class="btn-primary" onclick="app.updateTaskProgress('${task.id}', 100)">100%</button>
                     </div>
                 </div>
             </div>
@@ -928,9 +937,28 @@ class CalendarTaskApp {
 
         // 绑定进度滑块事件
         const slider = document.getElementById('progressSlider');
+        const progressNoteInput = document.getElementById('progressNoteInput');
+        
+        // 滑块拖动时实时更新显示
         slider.addEventListener('input', (e) => {
-            this.updateTaskProgress(taskId, e.target.value);
+            document.getElementById('currentProgressValue').textContent = `${e.target.value}%`;
         });
+        
+        // 滑块松开时保存
+        slider.addEventListener('change', (e) => {
+            const progress = parseInt(e.target.value);
+            const note = progressNoteInput ? progressNoteInput.value.trim() : '';
+            this.updateTaskProgressWithNote(taskId, progress, note);
+        });
+        
+        // 进展描述输入框失焦时保存
+        if (progressNoteInput) {
+            progressNoteInput.addEventListener('blur', () => {
+                const progress = parseInt(slider.value);
+                const note = progressNoteInput.value.trim();
+                this.updateTaskProgressWithNote(taskId, progress, note);
+            });
+        }
 
         modal.classList.add('active');
     }

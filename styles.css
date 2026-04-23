@@ -1342,34 +1342,13 @@ body {
     color: var(--category-other);
 }
 
-.task-progress-info {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-}
-
-.task-progress-bar {
-    flex: 1;
-    height: 8px;
-    background: var(--bg-tertiary);
+.task-progress-badge {
+    padding: 2px 8px;
     border-radius: 4px;
-    overflow: hidden;
-}
-
-.task-progress-bar .progress-fill {
-    height: 100%;
-    background: var(--primary-color);
-    border-radius: 4px;
-    transition: width var(--transition-normal);
-}
-
-.task-progress-text {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
+    background: rgba(0, 122, 255, 0.1);
     color: var(--primary-color);
-    min-width: 45px;
-    text-align: right;
 }
 
 .task-progress-note {
