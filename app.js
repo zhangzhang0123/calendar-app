@@ -6,10 +6,12 @@ class CalendarTaskApp {
     constructor() {
         this.tasks = this.loadTasks();
         this.checkins = this.loadCheckins();
+        this.memos = this.loadMemos();
         this.currentDate = new Date();
         this.currentView = 'calendar';
         this.currentFilter = 'all';
         this.editingTaskId = null;
+        this.editingMemoId = null;
 
         // 通知相关属性
         this.notificationSettings = this.loadNotificationSettings();
@@ -119,6 +121,30 @@ class CalendarTaskApp {
         document.getElementById('checkinForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.saveCheckin();
+        });
+
+        // 备忘录相关事件
+        document.getElementById('addMemoBtn').addEventListener('click', () => {
+            this.openMemoModal();
+        });
+
+        document.getElementById('closeMemoModal').addEventListener('click', () => {
+            this.closeMemoModal();
+        });
+
+        document.getElementById('cancelMemoBtn').addEventListener('click', () => {
+            this.closeMemoModal();
+        });
+
+        document.getElementById('memoModal').addEventListener('click', (e) => {
+            if (e.target.id === 'memoModal') {
+                this.closeMemoModal();
+            }
+        });
+
+        document.getElementById('memoForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveMemo();
         });
 
         // 通知设置相关事件
@@ -404,11 +430,14 @@ class CalendarTaskApp {
         document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
         document.getElementById('listView').style.display = view === 'list' ? 'block' : 'none';
         document.getElementById('checkinView').style.display = view === 'checkin' ? 'block' : 'none';
+        document.getElementById('memoView').style.display = view === 'memo' ? 'block' : 'none';
 
         if (view === 'list') {
             this.renderTaskList();
         } else if (view === 'checkin') {
             this.renderCheckinPage();
+        } else if (view === 'memo') {
+            this.renderMemoPage();
         }
     }
 
@@ -1143,26 +1172,183 @@ class CalendarTaskApp {
             `;
         }).join('');
 
-        // 绑定事件
+        // 绑定打卡按钮事件
         list.querySelectorAll('.checkin-page-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.toggleCheckin(btn.dataset.checkinId);
+                const checkinId = e.target.dataset.checkinId;
+                this.toggleCheckin(checkinId);
             });
         });
 
+        // 绑定删除按钮事件
         list.querySelectorAll('.checkin-page-delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                const checkinId = e.target.dataset.checkinId;
+                this.deleteCheckin(checkinId);
+            });
+        });
+    }
+
+    // ========================================
+    // 备忘录相关方法
+    // ========================================
+
+    // 加载备忘录
+    loadMemos() {
+        const saved = localStorage.getItem('memos');
+        return saved ? JSON.parse(saved) : [];
+    }
+
+    // 保存备忘录
+    saveMemos() {
+        localStorage.setItem('memos', JSON.stringify(this.memos));
+    }
+
+    // 打开备忘录模态框
+    openMemoModal(memoId = null) {
+        const modal = document.getElementById('memoModal');
+        const form = document.getElementById('memoForm');
+        const title = document.getElementById('memoModalTitle');
+        
+        form.reset();
+        this.editingMemoId = memoId;
+
+        if (memoId) {
+            // 编辑模式
+            const memo = this.memos.find(m => m.id === memoId);
+            if (memo) {
+                title.textContent = '编辑备忘录';
+                document.getElementById('memoTitle').value = memo.title;
+                document.getElementById('memoContent').value = memo.content || '';
+            }
+        } else {
+            // 新增模式
+            title.textContent = '添加备忘录';
+        }
+
+        modal.classList.add('active');
+    }
+
+    // 关闭备忘录模态框
+    closeMemoModal() {
+        const modal = document.getElementById('memoModal');
+        modal.classList.remove('active');
+        this.editingMemoId = null;
+    }
+
+    // 保存备忘录
+    saveMemo() {
+        const title = document.getElementById('memoTitle').value.trim();
+        const content = document.getElementById('memoContent').value.trim();
+
+        if (!title) {
+            alert('请输入备忘录标题');
+            return;
+        }
+
+        if (this.editingMemoId) {
+            // 编辑模式
+            const memo = this.memos.find(m => m.id === this.editingMemoId);
+            if (memo) {
+                memo.title = title;
+                memo.content = content;
+                memo.updatedAt = new Date().toISOString();
+            }
+        } else {
+            // 新增模式
+            const memo = {
+                id: this.generateId(),
+                title: title,
+                content: content,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            this.memos.push(memo);
+        }
+
+        this.saveMemos();
+        this.closeMemoModal();
+        this.renderMemoPage();
+    }
+
+    // 删除备忘录
+    deleteMemo(memoId) {
+        if (confirm('确定要删除这个备忘录吗？')) {
+            this.memos = this.memos.filter(m => m.id !== memoId);
+            this.saveMemos();
+            this.renderMemoPage();
+        }
+    }
+
+    // 渲染备忘录页面
+    renderMemoPage() {
+        const list = document.getElementById('memoList');
+
+        if (this.memos.length === 0) {
+            list.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: var(--text-tertiary);">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+                    <p>还没有备忘录</p>
+                    <p style="font-size: 13px; margin-top: 8px;">点击下方按钮添加第一个备忘录</p>
+                </div>
+            `;
+            return;
+        }
+
+        // 按更新时间降序排序
+        const sortedMemos = [...this.memos].sort((a, b) => {
+            return new Date(b.updatedAt) - new Date(a.updatedAt);
+        });
+
+        list.innerHTML = sortedMemos.map(memo => {
+            const updatedDate = new Date(memo.updatedAt);
+            const dateStr = updatedDate.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return `
+                <div class="memo-item" data-memo-id="${memo.id}">
+                    <div class="memo-item-header">
+                        <div class="memo-item-title">${memo.title}</div>
+                        <div class="memo-item-actions">
+                            <button class="memo-action-btn edit-memo-btn" data-memo-id="${memo.id}" title="编辑">✏️</button>
+                            <button class="memo-action-btn delete-memo-btn" data-memo-id="${memo.id}" title="删除">🗑️</button>
+                        </div>
+                    </div>
+                    ${memo.content ? `<div class="memo-item-content">${memo.content}</div>` : ''}
+                    <div class="memo-item-meta">更新于 ${dateStr}</div>
+                </div>
+            `;
+        }).join('');
+
+        // 绑定编辑按钮事件
+        list.querySelectorAll('.edit-memo-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                this.deleteCheckin(btn.dataset.checkinId);
+                const memoId = e.target.dataset.memoId;
+                this.openMemoModal(memoId);
             });
         });
 
-        // 点击整个项目也可以打卡
-        list.querySelectorAll('.checkin-page-item').forEach(item => {
+        // 绑定删除按钮事件
+        list.querySelectorAll('.delete-memo-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const memoId = e.target.dataset.memoId;
+                this.deleteMemo(memoId);
+            });
+        });
+
+        // 绑定点击备忘录项事件（点击整个卡片编辑）
+        list.querySelectorAll('.memo-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                if (!e.target.closest('.checkin-page-btn') && !e.target.closest('.checkin-page-delete-btn')) {
-                    this.toggleCheckin(item.dataset.checkinId);
+                if (!e.target.classList.contains('memo-action-btn')) {
+                    const memoId = item.dataset.memoId;
+                    this.openMemoModal(memoId);
                 }
             });
         });

@@ -625,6 +625,128 @@ body {
     font-weight: 300;
 }
 
+/* 备忘录页面样式 */
+.memo-view {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    min-height: calc(100vh - 120px);
+}
+
+.memo-page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.memo-page-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.memo-page-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.memo-list {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.memo-item {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+}
+
+.memo-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.memo-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-sm);
+}
+
+.memo-item-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+    margin-right: var(--spacing-md);
+}
+
+.memo-item-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.memo-action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background var(--transition-fast);
+    opacity: 0.6;
+}
+
+.memo-action-btn:hover {
+    background: var(--bg-tertiary);
+    opacity: 1;
+}
+
+.memo-item-content {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.memo-item-meta {
+    margin-top: var(--spacing-sm);
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.add-memo-btn {
+    width: 100%;
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.add-memo-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(0, 122, 255, 0.05);
+}
+
+.add-memo-btn .icon {
+    font-size: 24px;
+    font-weight: 300;
+}
+
 /* 通知设置表单样式 */
 .checkbox-label {
     display: flex;

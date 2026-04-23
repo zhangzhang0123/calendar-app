@@ -62,6 +62,7 @@
                     <button class="view-btn active" data-view="calendar">📅 日历视图</button>
                     <button class="view-btn" data-view="list">📋 列表视图</button>
                     <button class="view-btn" data-view="checkin">✅ 每日打卡</button>
+                    <button class="view-btn" data-view="memo">📝 备忘录</button>
                 </div>
                 <button class="add-task-btn" id="addTaskBtn">
                     <span class="icon">+</span>
@@ -125,6 +126,21 @@
                 <button class="add-checkin-page-btn" id="addCheckinPageBtn">
                     <span class="icon">+</span>
                     添加打卡任务
+                </button>
+            </section>
+
+            <!-- 备忘录视图 -->
+            <section class="memo-view" id="memoView" style="display: none;">
+                <div class="memo-page-header">
+                    <h2>备忘录</h2>
+                    <p class="memo-page-subtitle">记录重要信息，随时查看</p>
+                </div>
+                <div class="memo-list" id="memoList">
+                    <!-- 备忘录列表将通过JS动态生成 -->
+                </div>
+                <button class="add-memo-btn" id="addMemoBtn">
+                    <span class="icon">+</span>
+                    添加备忘录
                 </button>
             </section>
         </main>
@@ -235,6 +251,30 @@
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelCheckinBtn">取消</button>
                     <button type="submit" class="btn-primary">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加/编辑备忘录模态框 -->
+    <div class="modal-overlay" id="memoModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="memoModalTitle">添加备忘录</h2>
+                <button class="close-btn" id="closeMemoModal">×</button>
+            </div>
+            <form class="task-form" id="memoForm">
+                <div class="form-group">
+                    <label for="memoTitle">标题 *</label>
+                    <input type="text" id="memoTitle" required placeholder="输入备忘录标题">
+                </div>
+                <div class="form-group">
+                    <label for="memoContent">内容</label>
+                    <textarea id="memoContent" rows="8" placeholder="输入备忘录内容..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelMemoBtn">取消</button>
+                    <button type="submit" class="btn-primary">保存</button>
                 </div>
             </form>
         </div>
