@@ -13,6 +13,14 @@ class CalendarTaskApp {
         this.editingTaskId = null;
         this.editingMemoId = null;
 
+        // 列表视图筛选条件
+        this.listFilters = {
+            priority: '',
+            category: '',
+            status: '',
+            title: ''
+        };
+
         // 通知相关属性
         this.notificationSettings = this.loadNotificationSettings();
         this.lastNotificationDate = null;
@@ -88,6 +96,32 @@ class CalendarTaskApp {
             btn.addEventListener('click', () => {
                 this.setFilter(btn.dataset.filter);
             });
+        });
+
+        // 列表视图筛选控件
+        document.getElementById('filterPriority').addEventListener('change', (e) => {
+            this.listFilters.priority = e.target.value;
+            this.renderTaskList();
+        });
+
+        document.getElementById('filterCategory').addEventListener('change', (e) => {
+            this.listFilters.category = e.target.value;
+            this.renderTaskList();
+        });
+
+        document.getElementById('filterStatus').addEventListener('change', (e) => {
+            this.listFilters.status = e.target.value;
+            this.renderTaskList();
+        });
+
+        document.getElementById('filterTitle').addEventListener('input', (e) => {
+            this.listFilters.title = e.target.value.trim();
+            this.renderTaskList();
+        });
+
+        // 清除筛选按钮
+        document.getElementById('clearListFilterBtn').addEventListener('click', () => {
+            this.clearListFilters();
         });
 
         // 日历导航
@@ -753,6 +787,7 @@ class CalendarTaskApp {
     getFilteredTasks() {
         let filtered = [...this.tasks];
 
+        // 应用侧边栏筛选（全部、进行中、已完成、已逾期）
         switch (this.currentFilter) {
             case 'pending':
                 filtered = filtered.filter(t => t.status === 'pending' || t.status === 'in-progress');
@@ -764,6 +799,28 @@ class CalendarTaskApp {
                 const today = new Date().toISOString().split('T')[0];
                 filtered = filtered.filter(t => t.endDate < today && t.status !== 'completed');
                 break;
+        }
+
+        // 应用列表视图筛选条件
+        // 优先级筛选
+        if (this.listFilters.priority) {
+            filtered = filtered.filter(t => t.priority === this.listFilters.priority);
+        }
+
+        // 任务类型筛选
+        if (this.listFilters.category) {
+            filtered = filtered.filter(t => t.category === this.listFilters.category);
+        }
+
+        // 任务状态筛选
+        if (this.listFilters.status) {
+            filtered = filtered.filter(t => t.status === this.listFilters.status);
+        }
+
+        // 标题模糊匹配
+        if (this.listFilters.title) {
+            const searchTerm = this.listFilters.title.toLowerCase();
+            filtered = filtered.filter(t => t.title.toLowerCase().includes(searchTerm));
         }
 
         // 定义优先级权重（高=3, 中=2, 低=1）
@@ -791,6 +848,24 @@ class CalendarTaskApp {
             const bEndTime = b.endTime || '23:59';
             return aEndTime.localeCompare(bEndTime);
         });
+    }
+
+    // 清除列表筛选条件
+    clearListFilters() {
+        this.listFilters = {
+            priority: '',
+            category: '',
+            status: '',
+            title: ''
+        };
+
+        // 重置筛选控件
+        document.getElementById('filterPriority').value = '';
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('filterStatus').value = '';
+        document.getElementById('filterTitle').value = '';
+
+        this.renderTaskList();
     }
 
     // 创建任务项HTML

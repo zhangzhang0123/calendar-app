@@ -95,6 +95,47 @@
 
             <!-- 列表视图 -->
             <section class="list-view" id="listView" style="display: none;">
+                <!-- 列表筛选区域 -->
+                <div class="list-filter-section">
+                    <div class="list-filter-header">
+                        <h3>筛选条件</h3>
+                        <button class="clear-filter-btn" id="clearListFilterBtn">清除筛选</button>
+                    </div>
+                    <div class="list-filter-controls">
+                        <div class="filter-control-group">
+                            <label for="filterPriority">优先级</label>
+                            <select id="filterPriority" class="filter-select">
+                                <option value="">全部</option>
+                                <option value="high">高</option>
+                                <option value="medium">中</option>
+                                <option value="low">低</option>
+                            </select>
+                        </div>
+                        <div class="filter-control-group">
+                            <label for="filterCategory">任务类型</label>
+                            <select id="filterCategory" class="filter-select">
+                                <option value="">全部</option>
+                                <option value="work">工作</option>
+                                <option value="personal">个人</option>
+                                <option value="study">学习</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="filter-control-group">
+                            <label for="filterStatus">任务状态</label>
+                            <select id="filterStatus" class="filter-select">
+                                <option value="">全部</option>
+                                <option value="pending">待处理</option>
+                                <option value="in-progress">进行中</option>
+                                <option value="completed">已完成</option>
+                            </select>
+                        </div>
+                        <div class="filter-control-group search-group">
+                            <label for="filterTitle">标题搜索</label>
+                            <input type="text" id="filterTitle" class="filter-input" placeholder="输入关键词搜索...">
+                        </div>
+                    </div>
+                </div>
                 <div class="task-list" id="taskList">
                     <!-- 任务列表将通过JS动态生成 -->
                 </div>
