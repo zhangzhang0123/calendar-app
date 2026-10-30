@@ -33,6 +33,9 @@ class CalendarTaskApp {
         // 选中的日期
         this.selectedDate = null;
 
+        // 本地文件备份（通过本地服务写入应用目录）
+        this._syncChain = Promise.resolve();
+
         this.init();
     }
 
@@ -43,6 +46,7 @@ class CalendarTaskApp {
         this.updateStats();
         this.setDefaultDate();
         this.initNotificationSystem();
+        this.initFileSync();
     }
 
     // 绑定事件
@@ -261,6 +265,11 @@ class CalendarTaskApp {
         document.getElementById('importFileInput').addEventListener('change', (e) => {
             this.importData(e);
         });
+
+        // 本地文件备份
+        document.getElementById('fileSyncBtn').addEventListener('click', () => {
+            this.handleFileSyncClick();
+        });
     }
 
     // 设置默认日期为今天
@@ -361,12 +370,132 @@ class CalendarTaskApp {
     // 保存任务到本地存储
     saveTasks() {
         localStorage.setItem('calendarTasks', JSON.stringify(this.tasks));
+        this.syncToFile();
     }
 
     // 从本地存储加载任务
     loadTasks() {
         const saved = localStorage.getItem('calendarTasks');
         return saved ? JSON.parse(saved) : [];
+    }
+
+    // ========================================
+    // 本地文件备份（通过本地服务写入应用目录）
+    // ========================================
+
+    // 初始化备份：读取开关状态，必要时自动恢复数据并立即备份
+    async initFileSync() {
+        this.updateFileSyncButton();
+        if (localStorage.getItem('serverBackupEnabled') !== '1') return;
+
+        if (!(await this.isBackupServerAvailable())) {
+            console.warn('备份服务不可用，请通过 “node server.js” 启动应用。');
+            return;
+        }
+        await this.tryRestoreFromBackup();
+        this.syncToFile();
+        this.updateFileSyncButton();
+    }
+
+    // 检测备份服务是否可用
+    async isBackupServerAvailable() {
+        try {
+            await fetch('/api/backup');
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // 点击“备份到应用目录”按钮（开启/停止开关）
+    async handleFileSyncClick() {
+        if (localStorage.getItem('serverBackupEnabled') === '1') {
+            if (confirm('是否停止备份到应用目录？')) {
+                localStorage.removeItem('serverBackupEnabled');
+                alert('备份已停止。');
+            }
+            this.updateFileSyncButton();
+            return;
+        }
+
+        if (!(await this.isBackupServerAvailable())) {
+            alert('备份服务不可用。\n请通过 “node server.js” 启动应用后再试。');
+            return;
+        }
+        localStorage.setItem('serverBackupEnabled', '1');
+        this.syncToFile();
+        this.updateFileSyncButton();
+        alert('备份已开启！\n备份文件：应用目录下的 日历记事备份.json\n\n之后每次修改数据都会自动写入该文件。');
+    }
+
+    // 将数据备份到应用目录（串行化队列，避免并发写入冲突）
+    syncToFile() {
+        if (localStorage.getItem('serverBackupEnabled') !== '1') return;
+        this._syncChain = this._syncChain
+            .then(() => this._postBackup())
+            .catch(err => console.error('写入备份文件失败:', err));
+        return this._syncChain;
+    }
+
+    async _postBackup() {
+        const data = {
+            version: '1.0',
+            exportDate: new Date().toISOString(),
+            calendarTasks: this.tasks,
+            checkinTasks: this.checkins,
+            memos: this.memos,
+            notificationSettings: this.notificationSettings
+        };
+        const res = await fetch('/api/backup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data, null, 2)
+        });
+        if (!res.ok) throw new Error('备份服务返回 ' + res.status);
+    }
+
+    // 本地无任务数据而备份文件有数据时，提示从备份恢复
+    async tryRestoreFromBackup() {
+        if (this.tasks.length > 0) return;
+        try {
+            const res = await fetch('/api/backup');
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.calendarTasks || data.calendarTasks.length === 0) return;
+
+            if (!confirm(`本地任务数据为空，备份文件中有 ${data.calendarTasks.length} 个任务。\n\n是否从备份文件恢复数据？`)) {
+                return;
+            }
+            this.tasks = data.calendarTasks;
+            if (Array.isArray(data.checkinTasks)) this.checkins = data.checkinTasks;
+            if (Array.isArray(data.memos)) this.memos = data.memos;
+            if (data.notificationSettings) this.notificationSettings = data.notificationSettings;
+            this.saveTasks();
+            this.saveCheckins();
+            this.saveMemos();
+            this.saveNotificationSettings();
+            this.renderCalendar();
+            this.renderTaskList();
+            this.updateStats();
+            alert('数据已从备份文件恢复！');
+        } catch (e) {
+            console.warn('从备份恢复失败:', e);
+        }
+    }
+
+    // 更新备份按钮显示状态
+    updateFileSyncButton() {
+        const text = document.getElementById('fileSyncText');
+        const btn = document.getElementById('fileSyncBtn');
+        if (!text || !btn) return;
+
+        if (localStorage.getItem('serverBackupEnabled') === '1') {
+            text.textContent = '已备份：应用目录';
+            btn.classList.add('active');
+        } else {
+            text.textContent = '备份到应用目录';
+            btn.classList.remove('active');
+        }
     }
 
     // 删除任务
@@ -1097,6 +1226,7 @@ class CalendarTaskApp {
     // 保存打卡任务
     saveCheckins() {
         localStorage.setItem('checkinTasks', JSON.stringify(this.checkins));
+        this.syncToFile();
     }
 
     // 打开打卡任务模态框
@@ -1277,6 +1407,7 @@ class CalendarTaskApp {
     // 保存备忘录
     saveMemos() {
         localStorage.setItem('memos', JSON.stringify(this.memos));
+        this.syncToFile();
     }
 
     // 打开备忘录模态框
@@ -1449,6 +1580,7 @@ class CalendarTaskApp {
     // 保存通知设置
     saveNotificationSettings() {
         localStorage.setItem('notificationSettings', JSON.stringify(this.notificationSettings));
+        this.syncToFile();
     }
 
     // 初始化通知系统

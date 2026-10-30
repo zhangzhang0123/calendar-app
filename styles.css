@@ -221,6 +221,12 @@ body {
     color: var(--warning-color);
 }
 
+.sidebar-action-btn.active {
+    background: var(--bg-secondary);
+    border-color: var(--success-color, #28a745);
+    color: var(--success-color, #28a745);
+}
+
 .sidebar-action-btn .icon,
 .sidebar-notification-btn .icon {
     font-size: 18px;
